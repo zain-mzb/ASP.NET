@@ -1,0 +1,36 @@
+namespace Advance_C__Module_1
+{
+
+        delegate double CalculatorOpr(double x, double y);
+
+        public class thirdapp
+        {
+
+        static double Add(double a, double b) => a + b;
+        static double Multiply (double a, double b) => a * b;
+        static double Subtract(double a, double b) => a - b;
+        static double Divide(double a, double b) => b!=0 ? a / b : double.NaN;
+
+        static void Main()
+        {
+            CalculatorOpr add = Add;
+            CalculatorOpr multiply = Multiply;
+            CalculatorOpr subtract = Subtract;
+            CalculatorOpr divide = Divide;
+
+            double radd = add(20, 30);
+            double rmultiply = multiply(20, 30);
+            double rsubtract= subtract(20, 30);
+            double rdivide = divide(20, 30);
+
+            Console.WriteLine($"Addition: {radd}");
+            Console.WriteLine($"Multiply: {rmultiply}");
+            Console.WriteLine($"Subtract: {rsubtract}");
+            Console.WriteLine($"Division: {rdivide}");
+
+        }
+
+    }
+
+    
+}
