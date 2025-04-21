@@ -1,0 +1,112 @@
+public delegate void SongEventHandler(string songTitle);
+public class MusicPlayer
+{
+    public event SongEventHandler SongPlayed;
+    public event SongEventHandler SongPaused;
+    public event SongEventHandler SongStopped;
+    public event SongEventHandler SongSkipped;
+
+    public void Play(string songTitle)
+    {
+        Console.WriteLine($"Now Playing: {songTitle}");
+        SongPlayed?.Invoke(songTitle);
+    }
+
+    public void Pause(string songTitle)
+    {
+        Console.WriteLine($"Paused: {songTitle}");
+        SongPaused?.Invoke(songTitle);
+    }
+
+    public void Stop(string songTitle)
+    {
+        Console.WriteLine($"Stopped: {songTitle}");
+        SongStopped?.Invoke(songTitle);
+    }
+
+    public void Skip(string currentSongTitle, string nextSongTitle)
+    {
+        Console.WriteLine($"Skipped from: {currentSongTitle} to: {nextSongTitle}");
+
+        SongSkipped?.Invoke(nextSongTitle);
+    }
+
+
+}
+
+public class Subscriber
+{
+    public string Name { get; }
+
+    public Subscriber(string name)
+    {
+        Name = name;
+    }
+
+    public void SongPlayedHandler(string songTitle)
+    {
+        Console.WriteLine($"{Name} is now enjoying: {songTitle}");
+    }
+
+    public void SongPausedHandler(string songTitle)
+    {
+        Console.WriteLine($"{Name} paused : {songTitle}");
+    }
+
+    public void SongStoppedHandler(string songTitle)
+    {
+        Console.WriteLine($"{Name} stopped:{songTitle}");
+    }
+
+    public void SongSkippedHandler(string nextSongTitle)
+    {
+        Console.WriteLine("${Name} skipped to: {nextSongTitle}");
+    }
+}
+
+public class Program
+{
+    static void Main()
+    {
+        MusicPlayer musicPlayer = new MusicPlayer();
+        Subscriber subscriber1 = new Subscriber("User1");
+        Subscriber subscriber2 = new Subscriber("User2");
+
+        musicPlayer.SongPlayed += subscriber1.SongPlayedHandler;
+
+        musicPlayer.SongPlayed += subscriber2.SongPlayedHandler;
+
+        while (true)
+        {
+            Console.WriteLine("\nEnter the action (play, pause, stop, skip) or 'exit' to end:");
+
+            string action = Console.ReadLine().ToLower();
+
+            if (action == "exit")
+                break;
+            Console.WriteLine("Enter the Song title");
+            string songTitle = Console.ReadLine();
+
+            switch (action)
+            {
+                case "play":
+                    musicPlayer.Play(songTitle);
+                    break;
+                case "pause":
+                    musicPlayer.Pause(songTitle);
+                    break;
+                case "stop":
+                    musicPlayer.Stop(songTitle);
+                    break;
+                case "skip":
+                    Console.WriteLine("Enter the next song title:");
+                    string nextSongTitle = Console.ReadLine();
+                    musicPlayer.Skip(songTitle, nextSongTitle);
+                    break;
+                default:
+                    Console.WriteLine("Invalid action. Please enter Play, Pause, Stop, Skip or exit");
+                    break;
+            }
+        }
+    }
+}
