@@ -1,0 +1,173 @@
+namespace C_Assignment2
+{
+    public delegate void MathEventHandler(float result);
+
+    public class Program
+    {
+        static void Main()
+        {
+
+            TakeUserInput();
+
+        }
+
+        public static void TakeUserInput()
+        {
+            MathOperations mathOperation = new MathOperations();
+            ResultDisplay resultDisplay = new ResultDisplay();
+
+            mathOperation.Added += resultDisplay.AdditionHandler;
+            mathOperation.Subtracted += resultDisplay.SubtractionHandler;
+            mathOperation.Multiplied += resultDisplay.MultiplicationHandler;
+            mathOperation.Divided += resultDisplay.DivisionHandler;
+
+
+
+            while (true)
+            {
+                Console.WriteLine("-------------------------");
+
+                //Take input of 1st number
+                Console.WriteLine("Enter First Number: ");
+                string num1Input = Console.ReadLine();
+                if (!float.TryParse(num1Input, out float num1))
+                {
+                    Console.WriteLine("Invalid input for the 1st number. Please enter a valid integer.");
+                    continue;
+                }
+
+                //Take input of 2nd number
+                Console.WriteLine("Enter Second Number: ");
+                string num2Input = Console.ReadLine();
+                if (!float.TryParse(num2Input, out float num2))
+                {
+                    Console.WriteLine("Invalid input for the 2nd number. Please enter a valid integer.");
+                    continue;
+                }
+
+                //Take input for the operation
+
+                Console.WriteLine("Enter operation: Add (A), Subtract(S), Multiply(M), Division(D)");
+
+                string operation = Console.ReadLine()?.ToLower();
+
+                switch (operation)
+                {
+                    case "a":
+                    case "add":
+                        mathOperation.Add(num1, num2);
+                        break;
+                    case "s":
+                    case "subtract":
+                        mathOperation.Subtract(num1, num2);
+                        break;
+                    case "m":
+                    case "multiply":
+                        mathOperation.Multiply(num1, num2);
+                        break;
+                    case "d":
+                    case "division":
+                        mathOperation.Divide(num1, num2);
+                        break;
+                    default:
+                        Console.WriteLine("Invalid operation");
+                        break;
+                }
+            }
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace C_Assignment2
+{
+    internal class ResultDisplay
+    {
+        public void AdditionHandler(float result)
+        {
+            Console.WriteLine($"Result is: {result}");
+            Console.WriteLine("---------------------");
+
+        }
+
+        public void SubtractionHandler(float result)
+        {
+            Console.WriteLine($"Result is: {result}");
+            Console.WriteLine("---------------------");
+
+        }
+
+        public void MultiplicationHandler(float result)
+        {
+            Console.WriteLine($"Result is: {result}");
+            Console.WriteLine("---------------------");
+
+        }
+
+        public void DivisionHandler(float result)
+        {
+            Console.WriteLine($"Result is: {result}");
+            Console.WriteLine("---------------------");
+
+        }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace C_Assignment2
+{
+    internal class MathOperations
+    {
+        public event MathEventHandler Added;
+        public event MathEventHandler Subtracted;
+        public event MathEventHandler Multiplied;
+        public event MathEventHandler Divided;
+
+        public void Add(float num1, float num2) {
+
+            Console.WriteLine($"Adding {num1} and {num2}");
+            float result = num1 + num2;
+            Added?.Invoke(result);
+        }
+        public void Subtract(float num1, float num2)
+        {
+
+            Console.WriteLine($"Adding {num1} and {num2}");
+            float result = num1 - num2;
+            Subtracted?.Invoke(result);
+        }
+
+        public void Multiply(float num1, float num2)
+        {
+
+            Console.WriteLine($"Multiplying {num1} and {num2}");
+            float result = num1 * num2;
+            Multiplied?.Invoke(result);
+        }
+
+
+        public void Divide(float num1, float num2)
+        {
+            if (num2 == 0)
+            {
+              Console.WriteLine("Division by zero is not allowed. Please try again.");
+                return;
+            }
+            Console.WriteLine($"Dividing {num1} and {num2}");
+            float result = num1 / num2;
+            Divided?.Invoke(result);
+        }
+
+    }
+}
