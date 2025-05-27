@@ -1,0 +1,105 @@
+using System;
+using System.Collections.Generic;
+
+class GenericStack<T>
+{
+    private List<T> stack = new List<T>();
+
+    public void Push(T item)
+    {
+        stack.Add(item);
+    }
+
+    public T Pop()
+    {
+        if (stack.Count == 0)
+        {
+            throw new InvalidOperationException("Cannot pop from empty stack");
+        }
+
+        T poppedItem = stack[stack.Count - 1];
+        stack.RemoveAt(stack.Count - 1);
+        return poppedItem;
+    }
+
+    public void Display()
+    {
+        Console.WriteLine("Current elements in stack:");
+        foreach (T item in stack)
+        {
+            Console.WriteLine(item);
+        }
+    }
+
+}
+
+class Person
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+
+    public Person(string name, int age)
+    {
+        Name = name;
+        Age = age;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name}, {Age} years old";
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        //Example with Integers
+
+        GenericStack<int> intStack = new GenericStack<int>();
+
+        intStack.Push(10);
+        intStack.Push(20);
+        intStack.Push(30);
+
+        intStack.Display();
+
+        Console.WriteLine($"Popped item: {intStack.Pop()}");
+        Console.WriteLine($"Popped item: {intStack.Pop()}");
+
+        intStack.Display();
+
+        Console.WriteLine("\n");
+
+        //Example with strings
+
+        GenericStack<string> strStack = new GenericStack<string>();
+
+        strStack.Push("Apple");
+        strStack.Push("Banana");
+        strStack.Push("Orange");
+
+        strStack.Display();
+
+        Console.WriteLine($"Popped item: {strStack.Pop()}");
+
+        strStack.Display();
+
+        Console.WriteLine("\n");
+
+
+
+        //Example with custom objects
+
+        GenericStack<Person> personStack = new GenericStack<Person>();
+        personStack.Push(new Person("Jim", 32));
+        personStack.Push(new Person("Michael", 42));
+        personStack.Push(new Person("Dwight", 36));
+
+        personStack.Display();
+
+        Console.WriteLine($"Popped item: {personStack.Pop()}");
+
+        personStack.Display();
+    }
+}
