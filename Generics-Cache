@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+
+
+class CacheItem<T>
+{
+    public T Value { get; set; }
+    public DateTime ExpirationTime { get; set; }
+
+    public CacheItem(T value, TimeSpan expirationDuration)
+    {
+        Value = value;
+        ExpirationTime = DateTime.Now.Add(expirationDuration);
+    }
+
+    public bool IsExpired()
+    {
+        return DateTime.Now > ExpirationTime;
+    }
+}
+
+class GenericCache<T>
+{
+    private Dictionary<string, CacheItem<T>> cache = new Dictionary<string, CacheItem<T>>();
+
+    public void AddItem(string key, T value, TimeSpan expirationDuration)
+    {
+        CacheItem<T> cacheItem = new CacheItem<T>(value, expirationDuration);
+        cache[key] = cacheItem;
+    }
+
+    public T GetItem(string key)
+    {
+        if (cache.TryGetValue(key, out CacheItem<T> cacheItem))
+        {
+            if (cacheItem.IsExpired())
+            {
+                //Remove expired item from Cache
+                cache.Remove(key);
+                throw new InvalidOperationException("Attempted to retrive an expired item from cache.");
+            }
+            return cacheItem.Value;
+        }
+        throw new KeyNotFoundException($"Item with key '{key} not found in  cache'");
+    }
+
+
+    public void Display()
+    {
+        Console.WriteLine("Current items in cache\n");
+
+        foreach(var kvp in cache){
+            Console.WriteLine($"Key:{kvp.Key}, Expiration Time:{kvp.Value.ExpirationTime}, Value:{kvp.Value.Value}");
+        }
+    }
+
+}
+
+
+class Program
+{
+    static void Main()
+    {
+        //Example usage with integers
+
+        GenericCache<int> intCache = new GenericCache<int>();
+        intCache.AddItem("Number1", 42, TimeSpan.FromSeconds(5));
+        intCache.AddItem("Number2", 52, TimeSpan.FromSeconds(5));
+        intCache.AddItem("Number3", 62, TimeSpan.FromSeconds(5));
+
+        intCache.Display();
+
+        Console.WriteLine($"Rerieved item: {intCache.GetItem("Number1")}");
+
+        Console.WriteLine("\n");
+
+        //Wait for item to expire
+
+        Console.WriteLine("Waiting for item to expire\n");
+        System.Threading.Thread.Sleep(6000);
+
+        //Attempt to retrieve an expired item
+
+        try
+        {
+            Console.WriteLine($"Retrieved itemm: {intCache.GetItem("Number1")}");
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Error:{ex.Message}");
+        }
+
+        //Example usage with strings
+
+        GenericCache<string> stringCache = new GenericCache<string>();
+        stringCache.AddItem("Message1", "Hello World!", TimeSpan.FromSeconds(5));
+        stringCache.Display();
+
+
+        Console.WriteLine($"Retrieved item: {stringCache.GetItem("Message1")}\n");
+        stringCache.Display();
+
+        Console.WriteLine("Waiting for item to expire\n");
+        System.Threading.Thread.Sleep(6000);
+
+        //Attempt to retrieve an expired item
+
+        try
+        {
+            Console.WriteLine($"Retrieved item: {stringCache.GetItem("Message1")}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error:{ex.Message}\n");
+        }
+    }
+}
