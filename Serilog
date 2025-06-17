@@ -1,0 +1,129 @@
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Microsoft.Extensions.Logging;
+
+class Program
+{
+    static void Main()
+    {
+        Log.Logger = new LoggerConfiguration().WriteTo.Console()
+            .WriteTo.File("log.txt") // Ensure you have the correct using directive for Serilog
+            .CreateLogger();
+
+        var serviceProvider = new ServiceCollection()
+            .AddLogging(configure => configure.AddSerilog()) // Ensure you have the correct using directive for Serilog
+            .AddSingleton<DataProcessingService>()
+            .AddSingleton<IDataProcessor, UserInputProcessor>()
+            .AddSingleton<Microsoft.Extensions.Logging.ILogger, CustomLogger>() // Specify the correct ILogger type
+            .AddSingleton<ExceptionService>()
+            .BuildServiceProvider();
+
+        var logger = serviceProvider.GetService<ILogger<Program>>();
+        var dataProcessingService = serviceProvider.GetService<DataProcessingService>();
+        var exceptionService = serviceProvider.GetService<ExceptionService>();
+
+        try
+        {
+            // Check for null before using the service
+            if (dataProcessingService != null)
+            {
+                dataProcessingService.ProcessAndDisplay("Hello World!");
+            }
+
+            // Check for null before using the logger
+            var customLogger = serviceProvider.GetService<ILogger<CustomLogger>>();
+            if (customLogger != null)
+            {
+                customLogger.LogInformation("Custom log entry");
+            }
+
+            // Check for null before using the exception service
+            if (exceptionService != null)
+            {
+                throw new InvalidOperationException("Simulate exception");
+            }
+        }
+        catch (Exception ex)
+        {
+            exceptionService?.HandleException(ex); // Use null-conditional operator
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+}
+
+    public class DataProcessingService
+    {
+        private readonly ILogger<DataProcessingService> _logger;
+        public DataProcessingService(ILogger<DataProcessingService> logger)
+        {
+            _logger = logger;
+        }
+
+        public void ProcessAndDisplay(string input)
+        {
+            _logger.LogInformation("Processing input:{Input}", input.ToUpper());
+        }
+    }
+
+//Data processor class
+
+    public interface IDataProcessor
+    {
+        string ProcessData(string input);
+    }
+
+    public class UserInputProcessor : IDataProcessor
+    {
+        public string ProcessData(string input)
+        {
+            return input.ToUpper();
+        }
+    }
+
+//Custom Logger class
+    public class CustomLogger : ILogger<DataProcessingService> // Specify the correct type
+    {
+        public void LogInformation(string message)
+        {
+            Console.WriteLine($"[INFO] {DateTime.Now}:{message}");
+        }
+
+        public void LogError(Exception ex, string message)
+        {
+            Console.WriteLine($"[ERROR] {DateTime.Now}:{message}\n{ex}");
+        }
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+//Exception class
+    public class ExceptionService
+    {
+        private readonly ILogger<ExceptionService> _logger;
+
+        public ExceptionService(ILogger<ExceptionService> logger)
+        {
+            _logger = logger;
+        }
+
+        public void HandleException(Exception ex)
+        {
+            _logger.LogError(ex, "An exception occurred.");
+        }
+    }
+
