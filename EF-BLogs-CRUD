@@ -1,0 +1,197 @@
+using BlogApp.Data;
+using BlogApp.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+
+namespace BlogApp
+{ 
+    class Program
+    {
+        static void Main()
+        {
+            using (var context = new AppDbContext())
+            {
+                context.Database.EnsureCreated();
+                while (true)
+                {
+                    Console.WriteLine("1. Create a new blog post");
+
+                    Console.WriteLine("2. View all blog posts with comments");
+
+                    Console.WriteLine("3. Add a comment to a blog post");
+
+                    Console.WriteLine("4. Update a blog post");
+
+                    Console.WriteLine("5. Delete a blog post");
+
+                    Console.WriteLine("6. Exit");
+
+                    Console.Write("Choose an option: ");
+
+                    var choice = Console.ReadLine();
+
+                    switch (choice)
+                    {
+                        case "1":
+                            CreateBlogPost(context);
+                            break;
+
+                        case "2":
+                            ViewAllBlogPosts(context);
+                            break;
+                        case "3":
+                            AddCommentToBlogPost(context);
+                            break;
+                        case "4":
+                            UpdateBlogPost(context);
+                            break;
+                        case "5":
+                            DeleteBlogPost(context);
+                            break;
+                        case "6":
+                            return;
+                        default:
+                            Console.WriteLine("Invalid choice. Try again.");
+                            break;
+                    }
+                
+                }
+            }
+        }
+
+        static void CreateBlogPost(AppDbContext context)
+        {
+            Console.Write("Enter Blog title: ");
+            var title = Console.ReadLine();
+            Console.Write("Enter blog content: ");
+            var content = Console.ReadLine();
+            var blog = new Blog
+            {
+                Title = title,
+                Content = content,
+                DateCreated = DateTime.Now
+            };
+
+            context.Blogs.Add(blog);
+            context.SaveChanges();
+            Console.WriteLine("Blog post created successfully!");
+        }
+
+        static void ViewAllBlogPosts(AppDbContext context)
+        {
+            var blogs = context.Blogs.Include(b => b.Comments).ToList();
+            foreach(var blog in blogs)
+            {
+                Console.WriteLine($"Title: {blog.Title}");
+
+                Console.WriteLine($"Content: {blog.Content}");
+
+                Console.WriteLine($"Date Created: {blog.DateCreated}");
+
+                Console.WriteLine("Comments:");
+
+                foreach(var comment in blog.Comments)
+                {
+                    Console.WriteLine($"  - {comment.Content} ({comment.DateCreated})");
+
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void AddCommentToBlogPost(AppDbContext context)
+        {
+            Console.Write("Enter blog post ID: ");
+
+            if (int.TryParse(Console.ReadLine(), out int blogId))
+            {
+                var blog = context.Blogs.Find(blogId);
+
+                if (blog != null)
+                {
+                    Console.Write("Enter comment content: ");
+                    var content = Console.ReadLine();
+                    var comment = new Comment
+                    {
+                        Content = content,
+                        DateCreated = DateTime.Now,
+                        BlogId = blog.Id
+                    };
+                    context.Comments.Add(comment);
+                    context.SaveChanges();
+                    Console.WriteLine("Comment added successfully!");
+                }
+                else
+                {
+                    Console.WriteLine("Blog post not found.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number");
+            }
+        }
+
+        static void UpdateBlogPost(AppDbContext context)
+        {
+            Console.Write("Enter Blog post ID to update: ");
+            if(int.TryParse(Console.ReadLine(), out int blogId))
+            {
+                var blog = context.Blogs.Find(blogId);
+
+                if (blog != null)
+                {
+                    Console.Write("Enter new Blog title: ");
+                    var newTitle = Console.ReadLine();
+                    Console.Write("Enter new Blog content: ");
+                    var newContent = Console.ReadLine();
+                    blog.Title = newTitle;
+                    blog.Content = newContent;
+                    context.SaveChanges();
+                    Console.WriteLine("Blog post updated successfully!");
+                }
+                else
+                {
+                    Console.WriteLine("Blog post not found");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+            }
+        }
+
+        static void DeleteBlogPost(AppDbContext context)
+        {
+            Console.Write("Enter Blog post ID to delete: ");
+            if (int.TryParse(Console.ReadLine(), out int blogId))
+            {
+                var blog = context.Blogs.Find(blogId);
+
+                if(blog != null)
+                {
+                    context.Blogs.Remove(blog);
+                    context.SaveChanges();
+                    Console.WriteLine("Blog post deleted successfully!");
+                }
+                else
+                {
+                    Console.WriteLine("Blog post not found.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+            }
+
+        }
+
+
+    }
+}
