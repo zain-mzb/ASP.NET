@@ -1,0 +1,57 @@
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        Console.WriteLine("Fetching data asynchronously...");
+        //URLs for example API endpoints
+        string url1 = "https://jsonplaceholder.typicode.com/todos/1";
+
+        string url2 = "https://jsonplaceholder.typicode.com/todos/2";
+
+        //Call async methods conurrently
+
+        Task<string> result1Task = FetchDataAsync(url1);
+        Task<string> result2Task = FetchDataAsync(url2);
+
+        //Do other work while waiting for async tasks
+
+        Console.WriteLine("Performing other work...");
+
+        //Wait for both tasks to complete
+
+        string result1 = await result1Task;
+        string result2 = await result2Task;
+
+        //Print results
+
+        Console.WriteLine($"Result from {url1}:{result1}");
+        Console.WriteLine($"Result from {url2}:{result2}");
+        Console.ReadLine();
+    }
+
+    static async Task<string> FetchDataAsync(string url)
+    {
+        using (HttpClient httpClient = new HttpClient())
+        {
+            //Simulate Async call
+
+            HttpResponseMessage response = await httpClient.GetAsync(url);
+
+            //Check if the request was successful
+
+            if (response.IsSuccessStatusCode)
+            {
+                //Read and return the content as a string
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                return ($"Error :{response.StatusCode}");
+            }
+        }
+    }
+}
