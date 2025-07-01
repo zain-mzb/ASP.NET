@@ -1,0 +1,97 @@
+using System;
+using System.IO;
+
+
+
+public class FileProcessor
+{
+    public void ReadDataFromFile(string filePath)
+    {
+        try
+        {
+            // Open the text file using a stream reader.
+            using StreamReader reader = new(filePath);
+
+            // Read the stream as a string.
+            string text = reader.ReadToEnd();
+
+            // Write the text to the console.
+            Console.WriteLine(text);
+
+            Console.WriteLine("Data read successfully!");
+
+        }
+        catch (FileNotFoundException e)
+        {
+            Console.WriteLine("File not found: " + e.Message);
+        }
+        catch (DirectoryNotFoundException e)
+        {
+            Console.WriteLine("Directory not found: " + e.Message);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine("Access denied: " + e.Message);
+        }
+        catch (PathTooLongException e)
+        {
+            Console.WriteLine("Path too long: " + e.Message);
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine("I/O error: " + e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Unexpected error: " + e.Message);
+        }
+    }
+
+    public void WriteDataToFile(string data, string filePath)
+    {
+        
+        try
+        {
+            using (StreamWriter outputFile = new StreamWriter(filePath))
+            {
+                outputFile.WriteLine(data);
+            }
+            Console.WriteLine("Data entered into the file successfully!");
+        }
+        catch (DirectoryNotFoundException e)
+        {
+            Console.WriteLine("Directory not found: " + e.Message);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine("Access denied: " + e.Message);
+        }
+        catch (PathTooLongException e)
+        {
+            Console.WriteLine("Path too long: " + e.Message);
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine("I/O error: " + e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Unexpected error: " + e.Message);
+        }
+
+    }
+}
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        string dirPath = Path.Combine(Directory.GetCurrentDirectory(), "text-files");
+        string fullPath = Path.Combine(dirPath, "File1.txt");
+        Console.WriteLine("Writing data...");
+        FileProcessor fp = new FileProcessor();
+        fp.WriteDataToFile("Yo!", fullPath);
+        Console.WriteLine("Reading Data...");
+        fp.ReadDataFromFile(fullPath);
+    }
+}
