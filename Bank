@@ -1,0 +1,94 @@
+using System;
+
+class InsufficientFundsException : Exception
+{
+    public InsufficientFundsException(string message): base(message){}
+
+}
+
+class TransactionFailedException : Exception { 
+    public TransactionFailedException(string message) : base(message)
+    {
+
+    }
+}
+
+class BankAccount
+{
+    private decimal balance;
+    public decimal Balance => balance;
+
+    public void Deposit(decimal amount)
+    {
+        if (amount < 0)
+        {
+            throw new ArgumentException("Deposit amount must be positive.");
+        }
+        balance += amount;
+    }
+
+    public void Withdraw(decimal amount)
+    {
+        if (amount < 0)
+        {
+            throw new ArgumentException("Withdrawal amount must be positive.");
+        }
+
+        if(amount > balance)
+        {
+            throw new InsufficientFundsException("Insufficient funds for withdrawal");
+        }
+
+        //Simulate a transaction failure due to network issues (demo)
+
+        if (new Random().Next(0,5)==0)
+        {
+            throw new TransactionFailedException("Transaction failed due to network issues.");
+        }
+
+        balance -= amount;
+
+    }
+}
+
+
+class Program
+{
+    static void Main()
+    {
+        try
+        {
+            BankAccount account = new BankAccount();
+            account.Deposit(1000);
+            Console.Write("Enter the withdrawal amount: ");
+            string? input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                throw new ArgumentException("Input cannot be null or empty.");
+            }
+            decimal withdrawalAmount = decimal.Parse(input);
+            account.Withdraw(withdrawalAmount);
+            Console.WriteLine($"Remaining balance: {account.Balance}");
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        catch (InsufficientFundsException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        catch (TransactionFailedException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}. Please try again later.");
+        }
+        catch (FormatException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}. Invalid input");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
+        }
+    }
+}
