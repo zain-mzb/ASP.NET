@@ -1,0 +1,40 @@
+using System;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        try {
+            Console.WriteLine("Enter the string you wish to capitalize:");
+            string consoleInput = Console.ReadLine();
+            Console.WriteLine("Results:");
+            Console.WriteLine(ConvertToUppercase(consoleInput));
+        }
+        catch(NullReferenceException ex)
+        {
+            Console.WriteLine("Error: Input string is null.");
+        }
+        catch (ArgumentException ex)
+        {
+
+            Console.WriteLine("Error: " + ex.Message);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine("An error occurred: " + ex.Message);
+
+        }
+    }
+
+    public static string ConvertToUppercase(string input)
+    {
+        if(input.Length < 1)
+        {
+            throw new ArgumentException("Input string is empty.");
+        }
+        string output = input.ToUpper();
+        return output;
+    }
+}
